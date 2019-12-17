@@ -100,45 +100,47 @@ class Renderer
         $forwardHost = $request->headers->get('X-Forwarded-Host');
         $path = $request->getPathInfo();
 
-        $pageUrl = $this->rendererHostUrl.$path;
-        if ($request->query()) {
-            $pageUrl .= '?'.$request->getQueryString();
-        }
+        if ('/' !== $path) {
+            $pageUrl = $this->rendererHostUrl.$path;
+            if ($request->query()) {
+                $pageUrl .= '?'.$request->getQueryString();
+            }
 
-        if ($this->shouldShowRendererPage($request)) {
-            $dirPath = 'pages/';
-            $fileExtentions = '.html';
-            $fileName = last(explode('/', $path));
-            $fullFilePath = public_path($dirPath.$fileName.$fileExtentions);
+            if ($this->shouldShowRendererPage($request)) {
+                $dirPath = 'pages/';
+                $fileExtentions = '.html';
+                $fileName = last(explode('/', $path));
+                $fullFilePath = public_path($dirPath.$fileName.$fileExtentions);
 
-            if (File::exists($fullFilePath)) {
-                $content = file_get_contents($fullFilePath);
+                if (File::exists($fullFilePath)) {
+                    $content = file_get_contents($fullFilePath);
 
-                $lastModified = File::lastModified($fullFilePath);
-                $lastModified = DateTime::createFromFormat('U', $lastModified);
-                $lastModified->setTimezone(new DateTimeZone(config('app.timezone')));
-                $diffTimeInMinutes = now()->diffInMinutes($lastModified);
+                    $lastModified = File::lastModified($fullFilePath);
+                    $lastModified = DateTime::createFromFormat('U', $lastModified);
+                    $lastModified->setTimezone(new DateTimeZone(config('app.timezone')));
+                    $diffTimeInMinutes = now()->diffInMinutes($lastModified);
 
-                if (config('renderer.time_rerender_file') <= $diffTimeInMinutes) {
-                    // Re render new file
-                    goto rerender_file;
+                    if (config('renderer.time_rerender_file') <= $diffTimeInMinutes) {
+                        // Re render new file
+                        goto rerender_file;
+                    }
+
+                    return new Response($content);
                 }
 
-                return new Response($content);
+                rerender_file:
+
+                $nodeExcuteCommand = 'node '.base_path('index.js').' '.$pageUrl;
+                $process = new Process($nodeExcuteCommand);
+                $process->run();
+                $output = $process->getOutput();
+
+                if ('URL is not valid!' === $output || 'Please enter URL' === $output) {
+                    info($output);
+                }
+
+                return new Response($process->getOutput());
             }
-
-            rerender_file:
-
-            $nodeExcuteCommand = 'node '.base_path('index.js').' '.$pageUrl;
-            $process = new Process($nodeExcuteCommand);
-            $process->run();
-            $output = $process->getOutput();
-
-            if ('URL is not valid!' === $output || 'Please enter URL' === $output) {
-                info($output);
-            }
-
-            return new Response($process->getOutput());
         }
 
         return $next($request);
