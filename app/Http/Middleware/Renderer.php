@@ -97,8 +97,11 @@ class Renderer
      */
     public function handle($request, Closure $next)
     {
-        $forwardHost = $request->headers->get('X-Forwarded-Host');
+        $host = $request->headers->get('X-Forwarded-Host');
         $path = $request->getPathInfo();
+
+        $domainName = $this->rendererHostUrl;
+        $domainName = preg_replace('~http(s?)\:\/\/~', '', $domainName);
 
         if ('/' !== $path) {
             $pageUrl = $this->rendererHostUrl.$path;
@@ -107,10 +110,11 @@ class Renderer
             }
 
             if ($this->shouldShowRendererPage($request)) {
-                $dirPath = 'pages/';
+                $domainPath = preg_replace('~\.|\:~', '-', $domainName);
+                $fullRenderFilePath = $domainPath.'/';
                 $fileExtentions = '.html';
                 $fileName = last(explode('/', $path));
-                $fullFilePath = public_path($dirPath.$fileName.$fileExtentions);
+                $fullFilePath = public_path('pages/'.$fullRenderFilePath.$fileName.$fileExtentions);
 
                 if (File::exists($fullFilePath)) {
                     $content = file_get_contents($fullFilePath);

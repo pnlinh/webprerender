@@ -8,7 +8,10 @@ if (process.argv.length < 3) {
 }
 
 const url = process.argv.slice(2).join('');
-const fullDomainName = getFullDomainName(url);
+let fullDomainName = getFullDomainName(url);
+let dirPath = fullDomainName.replace(new RegExp('http(s?)\:\/\/', 'g'), '');
+dirPath = dirPath.replace('/', '');
+dirPath = dirPath.replace(/\.|\:/g, '-');
 
 if ('' === url || !isURL(url)) {
     console.log('URL is not valid!');
@@ -69,7 +72,7 @@ async function start(url) {
     result = result.replace(iconRegex, `url(${fullDomainName}$1.$2)`);
 
     // Append comment for quick check page rendered via puppeteer
-    result = `<!-- Render Page Caching by Puppeteer --> ${result}`;
+    result = `<!-- Render Page Caching by Puppeteer --> ${result}`.trim();
 
     const arrPath = url.split('/');
     let fileName = arrPath[arrPath.length - 1];
@@ -83,7 +86,7 @@ async function start(url) {
     // Return result first
     console.log(result);
 
-    await fse.outputFile(`${__dirname}/public/pages/${fileName}.html`, result);
+    await fse.outputFile(`${__dirname}/public/pages/${dirPath}/${fileName}.html`, result);
 
     await browser.close();
 }
