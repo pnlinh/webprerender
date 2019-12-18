@@ -4,8 +4,6 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -48,13 +46,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        //$currentPath = $request->getPathInfo();
-        //$url = config('renderer.host_url').$currentPath;
-        //
-        //if ($exception instanceof NotFoundHttpException) {
-        //    return redirect()->guest($url);
-        //}
-
         return parent::render($request, $exception);
     }
 }
