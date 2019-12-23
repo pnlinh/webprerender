@@ -41,7 +41,8 @@ function isURL(url) {
 }
 
 async function start(url) {
-    const browser = await puppeteer.launch();
+    // const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({timeout: 0, args: ['--no-sandbox']});
     const page = await browser.newPage();
 
     await page.goto(url, {
@@ -77,7 +78,7 @@ async function start(url) {
     const arrPath = url.split('/');
     let fileName = arrPath[arrPath.length - 1];
 
-    if (fileName.match(new RegExp('.html|.htm','g'))) {
+    if (fileName.match(new RegExp('.html|.htm', 'g'))) {
         const removeDotEndPath = fileName.split('.');
 
         fileName = removeDotEndPath.shift();
