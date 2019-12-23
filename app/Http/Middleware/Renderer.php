@@ -90,6 +90,7 @@ class Renderer
         }
 
         $path = $request->getPathInfo();
+        $path = rtrim($path,'/');
 
         $domainName = $host;
         $domainName = preg_replace('~http(s?)\:\/\/~', '', $domainName);
