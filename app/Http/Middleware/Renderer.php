@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Log;
 use File;
 use Closure;
 use DateTime;
@@ -40,8 +41,6 @@ class Renderer
         $bufferAgent = $request->server->get('X-BUFFERBOT');
         $accept = $request->server->get('HTTP_ACCEPT');
         $path = $request->getPathInfo();
-        $requestUri = $request->getRequestUri();
-        $referer = $request->headers->get('Referer');
 
         $isRendererPageRequest = false;
 
@@ -85,6 +84,8 @@ class Renderer
     {
         info($request->getUri());
 
+        $protocol = 'https';
+
         if (config('renderer.debug_mode')) {
             $host = $this->rendererHostUrl;
         } else {
@@ -95,16 +96,17 @@ class Renderer
         $path = rtrim($path,'/');
 
         $domainName = $host;
-        $domainName = preg_replace('~http(s?)\:\/\/~', '', $domainName);
+        $domainName = preg_replace('~http(s?):\/\/~', '', $domainName);
 
         if ('/' !== $path) {
-            $pageUrl = $host.$path;
+            $pageUrl = $protocol.'://'.$host.$path;
+
             if ($request->query()) {
                 $pageUrl .= '?'.$request->getQueryString();
             }
 
             if ($this->shouldShowRendererPage($request)) {
-                $domainPath = preg_replace('~\.|\:~', '-', $domainName);
+                $domainPath = preg_replace('~[.:]~', '-', $domainName);
                 $fullRenderFilePath = $domainPath.'/';
                 $fileExtentions = '.html';
                 $fileName = last(explode('/', $path));
@@ -127,16 +129,22 @@ class Renderer
 
                 rerender_file:
 
+                $isOk = true;
                 $nodeExcuteCommand = 'node '.base_path('index.js').' '.$pageUrl;
+
                 $process = new Process($nodeExcuteCommand);
                 $process->run();
-                $output = $process->getOutput();
 
-                if ('URL is not valid!' === $output || 'Please enter URL' === $output) {
-                    info($output);
+                if (! $process->isSuccessful() || '' !== $process->getErrorOutput()) {
+                    $isOk = false;
+                    Log::error($process->getErrorOutput());
                 }
 
-                return response($output)->header('Content-Type', 'text/html');
+                if ($isOk) {
+                    $output = $process->getOutput();
+
+                    return response($output)->header('Content-Type', 'text/html');
+                }
             }
         }
 

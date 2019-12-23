@@ -1,8 +1,20 @@
 const puppeteer = require('puppeteer');
 const fse = require('fs-extra');
 
+// Hanlde process on exception
+process.on('uncaughtException', (err) => {
+    console.error(err, err.message);
+    process.exit(1) // mandatory (as per the Node docs)
+});
+
+// Handle process on rejection
+process.on("unhandledRejection", (err) => {
+    console.error(err, err.message);
+    process.exit(1) // mandatory (as per the Node docs)
+});
+
 if (process.argv.length < 3) {
-    console.log('Please enter URL');
+    console.error('Please enter URL');
 
     return;
 }
@@ -14,9 +26,19 @@ dirPath = dirPath.replace('/', '');
 dirPath = dirPath.replace(/\.|\:/g, '-');
 
 if ('' === url || !isURL(url)) {
-    console.log('URL is not valid!');
+    console.error('URL is not valid!');
 
     return;
+}
+
+function today() {
+    const today = new Date();
+
+    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    const dateTime = date + ' ' + time;
+
+    return dateTime;
 }
 
 /**
@@ -73,7 +95,7 @@ async function start(url) {
     result = result.replace(iconRegex, `url(${fullDomainName}$1.$2)`);
 
     // Append comment for quick check page rendered via puppeteer
-    result = `<!-- Render Page Caching by Puppeteer --> ${result}`.trim();
+    result = `<!-- Render Page Caching by Puppeteer at ${today()} --> ${result}`.trim();
 
     const arrPath = url.split('/');
     let fileName = arrPath[arrPath.length - 1];
@@ -95,6 +117,6 @@ async function start(url) {
 try {
     start(url);
 } catch (e) {
-    console.log(e.message);
+    console.error(e.message);
 }
 
