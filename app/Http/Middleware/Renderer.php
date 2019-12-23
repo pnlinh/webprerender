@@ -83,6 +83,8 @@ class Renderer
      */
     public function handle($request, Closure $next)
     {
+        info($request->getUri());
+
         if (config('renderer.debug_mode')) {
             $host = $this->rendererHostUrl;
         } else {
