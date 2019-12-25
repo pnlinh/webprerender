@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 const fse = require('fs-extra');
 
-// Hanlde process on exception
+// Handle process on exception
 process.on('uncaughtException', (err) => {
     console.error(err, err.message);
     process.exit(1) // mandatory (as per the Node docs)
@@ -69,6 +69,9 @@ async function start(url) {
     await page.goto(url, {
         waitUntil: 'networkidle2'
     });
+
+    // wait for page load after 5000ms to get page content
+    await page.waitFor(5000);
 
     // await page.goto(url);
     const content = await page.content();
