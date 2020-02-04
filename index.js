@@ -107,6 +107,11 @@ async function start(url) {
     const arrPath = url.split('/');
     let fileName = arrPath[arrPath.length - 1];
 
+    const queryStringRegex = new RegExp('\\?.*', 'g');
+    if (fileName.match(queryStringRegex)) {
+        fileName = fileName.replace(queryStringRegex, '');
+    }
+
     if (fileName.match(new RegExp('.html|.htm', 'g'))) {
         const removeDotEndPath = fileName.split('.');
 
