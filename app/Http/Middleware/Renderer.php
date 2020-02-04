@@ -112,6 +112,10 @@ class Renderer
                 $fileName = last(explode('/', $path));
                 $fullFilePath = public_path('pages/'.$fullRenderFilePath.$fileName.$fileExtentions);
 
+                if (preg_match('~\.html\.html|\.htm\.htm~', $fullFilePath)) {
+                    $fullFilePath = preg_replace('~\.html\.html|\.htm\.htm~', '.html', $fullFilePath);
+                }
+
                 if (File::exists($fullFilePath)) {
                     $content = File::get($fullFilePath);
                     $lastModified = File::lastModified($fullFilePath);
