@@ -21,6 +21,11 @@ if (process.argv.length < 3) {
 
 const url = process.argv.slice(2).join('');
 let fullDomainName = getFullDomainName(url);
+
+if (!fullDomainName.endsWith('/')) {
+    fullDomainName = fullDomainName + '/';
+}
+
 let dirPath = fullDomainName.replace(new RegExp('http(s?)\:\/\/', 'g'), '');
 dirPath = dirPath.replace('/', '');
 dirPath = dirPath.replace(/\.|\:/g, '-');
