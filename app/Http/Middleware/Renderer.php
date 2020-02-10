@@ -110,6 +110,11 @@ class Renderer
                 $fullRenderFilePath = $domainPath.'/';
                 $fileExtentions = '.html';
                 $fileName = last(explode('/', $path));
+
+                if ('' == $fileName) {
+                    $fileName = $domainName;
+                }
+
                 $fullFilePath = public_path('pages/'.$fullRenderFilePath.$fileName.$fileExtentions);
 
                 if (preg_match('~\.html\.html|\.htm\.htm~', $fullFilePath)) {
