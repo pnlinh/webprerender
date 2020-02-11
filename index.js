@@ -86,7 +86,7 @@ async function start(url) {
     let result = content.replace(scriptTagRegex, '');
 
     // Replace css
-    const cssRegex = new RegExp('href=\\"\\/(\\S*)\\.css|\\?v=\\"', 'gi');
+    const cssRegex = new RegExp('href=\\"(?!\\/\\/.)\\/(\\S*)\\.css|\\?v=\\"', 'gi');
     result = result.replace(cssRegex, `href="${fullDomainName}$1.css`);
 
     // Replace cdn image
