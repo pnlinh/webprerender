@@ -83,7 +83,13 @@ async function start(url) {
 
     // Remove scrip tag
     const scriptTagRegex = new RegExp('<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>', 'gi');
-    let result = content.replace(scriptTagRegex, '');
+    let result = content.replace(scriptTagRegex, function (matched, index, original) {
+        if (matched.includes('json')) {
+            return matched;
+        }
+
+        return '';
+    });
 
     // Replace css
     const cssRegex = new RegExp('href=\\"(?!\\/\\/.)\\/(\\S*)\\.css|\\?v=\\"', 'gi');
