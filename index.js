@@ -92,8 +92,18 @@ async function start(url) {
     });
 
     // Replace css
-    const cssRegex = new RegExp('href=\\"(?!\\/\\/.)\\/(\\S*)\\.css|\\?v=\\"', 'gi');
-    result = result.replace(cssRegex, `href="${fullDomainName}$1.css`);
+    const cssRegex = new RegExp('href=\\"\\/(\\S*)\\.css|\\?v=\\"', 'gi');
+    result = result.replace(cssRegex, (matched, index, original) => {
+        let flag = fullDomainName.replace(new RegExp('http(s?):\\/\\/'), '');
+
+        if (matched.includes(flag)) {
+            matched = matched.replace('//', 'https://');
+
+            return matched;
+        }
+
+        return `href="${fullDomainName}${index}.css"`;
+    });
 
     // Replace cdn image
     const cdnRegex = new RegExp('src=\\"\\/\\/(\\S.*)\\.(png|jpg)\\"', 'gi');
