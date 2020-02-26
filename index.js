@@ -31,7 +31,7 @@ dirPath = dirPath.replace('/', '');
 dirPath = dirPath.replace(/\.|\:/g, '-');
 
 if ('' === url || !isURL(url)) {
-    console.error('URL is not valid!');
+    console.error(`URL is not valid! - ${url}`);
 
     return;
 }
