@@ -84,6 +84,17 @@ class Renderer
     {
         info($request->getUri());
 
+        $isReponsiveMode = config('renderer.reponsive_mode');
+        $isMobile = 0;
+        $pathByDeviceMode = 'desktop/';
+
+        if (! $isReponsiveMode) {
+            if (preg_match('~Linux|Android|iPhone|Nexus~i', $request->userAgent())) {
+                $isMobile = 1;
+                $pathByDeviceMode = 'mobile/';
+            }
+        }
+
         $protocol = 'https';
 
         if (config('renderer.debug_mode')) {
@@ -115,7 +126,7 @@ class Renderer
                     $fileName = $domainName;
                 }
 
-                $fullFilePath = public_path('pages/'.$fullRenderFilePath.$fileName.$fileExtentions);
+                $fullFilePath = public_path('pages/'.$fullRenderFilePath.$pathByDeviceMode.$fileName.$fileExtentions);
 
                 if (preg_match('~\.html\.html|\.htm\.htm~', $fullFilePath)) {
                     $fullFilePath = preg_replace('~\.html\.html|\.htm\.htm~', '.html', $fullFilePath);
@@ -139,7 +150,7 @@ class Renderer
                 rerender_file:
 
                 $isOk = true;
-                $nodeExcuteCommand = 'node '.base_path('index.js').' '.$pageUrl;
+                $nodeExcuteCommand = 'node '.base_path('index.js').' '.$pageUrl.' '.$isMobile;
 
                 $process = new Process($nodeExcuteCommand);
                 $process->run();
