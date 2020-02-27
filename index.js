@@ -1,6 +1,8 @@
 const puppeteer = require('puppeteer');
 const fse = require('fs-extra');
 
+const MOBILE_USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+
 // Handle process on exception
 process.on('uncaughtException', (err) => {
     console.error(err, err.message);
@@ -19,7 +21,8 @@ if (process.argv.length < 3) {
     return;
 }
 
-const url = process.argv.slice(2).join('');
+const url = process.argv[2];
+const isMobile = Number(process.argv[3]);
 let fullDomainName = getFullDomainName(url);
 
 if (!fullDomainName.endsWith('/')) {
@@ -66,10 +69,14 @@ function isURL(url) {
     return regex.test(url);
 }
 
-async function start(url) {
+async function start(url, isMobile = 0) {
     // const browser = await puppeteer.launch();
     const browser = await puppeteer.launch({timeout: 0, args: ['--no-sandbox']});
     const page = await browser.newPage();
+
+    if (isMobile) {
+        await page.setUserAgent(MOBILE_USER_AGENT);
+    }
 
     await page.goto(url, {
         waitUntil: 'networkidle2'
@@ -137,13 +144,17 @@ async function start(url) {
     // Return result first
     console.log(result);
 
-    await fse.outputFile(`${__dirname}/public/pages/${dirPath}/${fileName}.html`, result);
+    if (isMobile) {
+        await fse.outputFile(`${__dirname}/public/pages/${dirPath}/mobile/${fileName}.html`, result);
+    } else {
+        await fse.outputFile(`${__dirname}/public/pages/${dirPath}/desktop/${fileName}.html`, result);
+    }
 
     await browser.close();
 }
 
 try {
-    start(url);
+    start(url, isMobile);
 } catch (e) {
     console.error(e.message);
 }
