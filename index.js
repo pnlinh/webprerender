@@ -109,7 +109,7 @@ async function start(url, isMobile = 0) {
             return matched;
         }
 
-        return `href="${fullDomainName}${index}.css"`;
+        return `href="${fullDomainName}${index}.css`;
     });
 
     // Replace cdn image
