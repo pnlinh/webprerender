@@ -88,7 +88,7 @@ class Renderer
         $isMobile = 0;
         $pathByDeviceMode = 'desktop/';
 
-        if (! $isReponsiveMode) {
+        if ($isReponsiveMode === false) {
             if (preg_match('~Linux|Android|iPhone|Nexus~i', $request->userAgent())) {
                 $isMobile = 1;
                 $pathByDeviceMode = 'mobile/';
