@@ -51,7 +51,7 @@ class Renderer
             return false;
         }
 
-        if (! $request->isMethod(Request::METHOD_GET) || ! preg_match('/text\/html/', $accept) || preg_match('/^\/(?:assets|api)/', $path)) {
+        if (! $request->isMethod(Request::METHOD_GET) || ! preg_match('/text\/html/', $accept) || preg_match('/^\/(?:assets|api|.*api)/', $path)) {
             return false;
         }
 
