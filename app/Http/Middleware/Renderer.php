@@ -21,6 +21,9 @@ use Symfony\Component\Process\Process;
  */
 class Renderer
 {
+    const IS_DESKTOP = 0;
+    const IS_MOBILE = 1;
+
     /** @var string */
     private $rendererHostUrl;
 
@@ -85,12 +88,12 @@ class Renderer
         info($request->getUri());
 
         $isReponsiveMode = config('renderer.reponsive_mode');
-        $isMobile = 0;
+        $isMobile = static::IS_DESKTOP;
         $pathByDeviceMode = 'desktop/';
 
         if ($isReponsiveMode === false) {
             if (preg_match('~Linux|Android|iPhone|Nexus~i', $request->userAgent())) {
-                $isMobile = 1;
+                $isMobile = static::IS_MOBILE;
                 $pathByDeviceMode = 'mobile/';
             }
         }
