@@ -6,13 +6,13 @@ const MOBILE_USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS
 // Handle process on exception
 process.on('uncaughtException', (err) => {
     console.error(err, err.message);
-    process.exit(1) // mandatory (as per the Node docs)
+    process.exit(1);
 });
 
 // Handle process on rejection
-process.on("unhandledRejection", (err) => {
+process.on('unhandledRejection', (err) => {
     console.error(err, err.message);
-    process.exit(1) // mandatory (as per the Node docs)
+    process.exit(1);
 });
 
 if (process.argv.length < 3) {
@@ -85,7 +85,9 @@ async function start(url, isMobile = 0, timeout = 5000) {
 
     const content = await page.content();
 
-    // Remove scrip tag
+    await browser.close();
+
+    // Remove script tag
     const scriptTagRegex = new RegExp('<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>', 'gi');
     let result = content.replace(scriptTagRegex, (matched, index, original) => {
         if (matched.includes('json')) {
@@ -146,8 +148,6 @@ async function start(url, isMobile = 0, timeout = 5000) {
     } else {
         await fse.outputFile(`${__dirname}/public/pages/${dirPath}/desktop/${fileName}.html`, result);
     }
-
-    await browser.close();
 }
 
 try {
