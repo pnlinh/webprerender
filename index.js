@@ -69,8 +69,7 @@ function isURL(url) {
     return regex.test(url);
 }
 
-async function start(url, isMobile = 0) {
-    // const browser = await puppeteer.launch();
+async function start(url, isMobile = 0, timeout = 5000) {
     const browser = await puppeteer.launch({timeout: 0, args: ['--no-sandbox']});
     const page = await browser.newPage();
 
@@ -82,10 +81,8 @@ async function start(url, isMobile = 0) {
         waitUntil: 'networkidle2'
     });
 
-    // wait for page load after 5000ms to get page content
-    await page.waitFor(5000);
+    await page.waitFor(timeout);
 
-    // await page.goto(url);
     const content = await page.content();
 
     // Remove scrip tag
